@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mercado Online - POO</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #111;
+            color: white;
+            padding: 20px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Spider_web_3.svg/512px-Spider_web_3.svg.png');
+            background-repeat: no-repeat;
+            background-position: top right;
+            background-size: 250px;
+        }
+
+        .container {
+            background: rgb(184, 53, 53);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
+        }
+
+        input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #1f0b74;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2> Simulação de Compra - Mercado Online</h2>
+
+    <label>Preço do Arroz (R$20,99):</label><br>
+    <input type="number" id="arroz" value="25"><br>
+
+    <label>Preço do Feijão (R$9,03):</label><br>
+    <input type="number" id="feijao" value="10"><br>
+    
+     <label>Preço do leite (R$6,00):</label><br>
+    <input type="number" id="leite" value="5"><br>
+
+     <label>Preço creme de cabelo (R$20):</label><br>
+    <input type="number" id="creme de cabelo" value="19"><br>
+    
+    <label>Quantidade de Itens:</label><br>
+    <input type="number" id="quantidade" value="2"><br>
+
+    <label>Cupom de Desconto (50%):</label><br>
+    <input type="number" id="cupom" value="10"><br>
+
+    <button onclick="calcularCompra()">Finalizar Compra</button>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+class Produto {
+    constructor(nome, preco) {
+        this.nome = nome;
+        this.preco = preco;
+    }
+}
+
+class Carrinho {
+    constructor() {
+        this.produtos = [];
+    }
+
+    adicionarProduto(produto) {
+        this.produtos.push(produto);
+    }
+
+    calcularSubtotal(quantidade) {
+        let subtotal = 0;
+
+        for (let produto of this.produtos) {
+            subtotal += produto.preco;
+        }
+
+        return subtotal * quantidade;
+    }
+}
+
+class Cupom {
+    constructor(percentual) {
+        this.percentual = percentual;
+    }
+
+    calcularDesconto(valor) {
+        if (valor >= 50 && this.percentual > 0 && this.percentual <= 20) {
+            return (valor * this.percentual) / 100;
+        } else {
+            return 0;
+        }
+    }
+}
+
+class Compra {
+    constructor(carrinho, cupom) {
+        this.carrinho = carrinho;
+        this.cupom = cupom;
+    }
+
+    calcularTotal(quantidade) {
+        let subtotal = this.carrinho.calcularSubtotal(quantidade);
+        let desconto = this.cupom.calcularDesconto(subtotal);
+        let total = subtotal - desconto;
+        let descontoExtra = 0;
+
+        if (total > 100) {
+            descontoExtra = 10;
+            total = total - descontoExtra;
+        }
+
+        let frete = 0;
+
+        if (total >= 80) {
+            frete = 0;
+        } else {
+            frete = 15;
+        }
+
+        total = total + frete;
+
+        return {
+            subtotal: subtotal,
+            desconto: desconto,
+            descontoExtra: descontoExtra,
+            frete: frete,
+            total: total
+        };
+    }
+}
+
+function calcularCompra() {
+    let arroz = Number(document.getElementById("arroz").value);
+    let feijao = Number(document.getElementById("feijao").value);
+    let quantidade = Number(document.getElementById("quantidade").value);
+    let cupomValor = Number(document.getElementById("cupom").value);
+
+    if (arroz < 0 || feijao < 0 || quantidade <= 0 || cupomValor < 0) {
+        document.getElementById("resultado").innerHTML = "Por favor, insira valores válidos.";
+        return;
+    }
+
+    let produto1 = new Produto("Arroz", arroz);
+    let produto2 = new Produto("Feijão", feijao);
+    let produto3 = new Produto("Leite", leite);
+    let produto4 = new Produto("creme de cabelo", arroz);
+
+    let carrinho = new Carrinho();
+    carrinho.adicionarProduto(produto1);
+    carrinho.adicionarProduto(produto2);
+
+    let cupom = new Cupom(cupomValor);
+
+    let compra = new Compra(carrinho, cupom);
+
+    let resultado = compra.calcularTotal(quantidade);
+
+    document.getElementById("resultado").innerHTML =
+        "Total sem desconto: R$ " + resultado.subtotal.toFixed(2) + "<br>" +
+        "Desconto do cupom: R$ " + resultado.desconto.toFixed(2) + "<br>" +
+        "Desconto extra: R$ " + resultado.descontoExtra.toFixed(2) + "<br>" +
+        "Frete: R$ " + resultado.frete.toFixed(2) + "<br><hr>" +
+        "<strong>Total final: R$ " + resultado.total.toFixed(2) + "</strong>";
+}
+</script>
+
+</body>
+</html>
